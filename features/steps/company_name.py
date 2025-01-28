@@ -26,11 +26,14 @@ def step_impl(context):
     #     context.driver.get(company_link)
     #     context.company_brands_page = CompanyBrandsPage(context.driver)
     #     assert context.company_brands_page.retrieve_current_url().__eq__(company_link)
+
+
     context.company_brands_page = CompanyBrandsPage(context.driver)
     context.driver.get("https://medex.com.bd/companies/304/alien-pharma/brands")
+    # context.driver.get("https://medex.com.bd/companies/6/amico-laboratories-ltd/brands")
 
     context.company_brands_page.handle_pagination()
-
+    ic(context.company_brands_page.brand_links)
 
 @when(u'I click on each brand')
 def step_impl(context):
