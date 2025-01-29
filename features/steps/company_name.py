@@ -21,12 +21,23 @@ def step_impl(context):
 @when(u'I view all brands if available')
 def step_impl(context):
     context.company_brands_page = CompanyBrandsPage(context.driver)
-    for company_link in context.company_page.company_links:
+    total_links = len(context.company_page.company_links)
+    for index, company_link in enumerate(context.company_page.company_links, start=1):
         context.driver.get(company_link)
         assert context.company_brands_page.retrieve_current_url().__eq__(company_link)
-        ic("--------------", company_link, "--------------")
+        # ic("--------------", company_link, "--------------")
         context.company_brands_page.handle_pagination()
         ic(len(context.company_brands_page.brand_links))
+
+        # Print the traversed company link count
+        ic(f"Completed Company links: {index} out of {total_links}")
+
+    # for company_link in context.company_page.company_links:
+    #     context.driver.get(company_link)
+    #     assert context.company_brands_page.retrieve_current_url().__eq__(company_link)
+    #     ic("--------------", company_link, "--------------")
+    #     context.company_brands_page.handle_pagination()
+    #     ic(len(context.company_brands_page.brand_links))
         # ic(context.company_brands_page.brand_links)
 
 
