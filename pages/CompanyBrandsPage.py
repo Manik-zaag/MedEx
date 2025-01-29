@@ -13,6 +13,7 @@ class CompanyBrandsPage(BasePage):
         super().__init__(driver)
         self.brand_links = []
         self.available_brand_name_title = (By.XPATH, "//small[normalize-space()='Available Brand Names']")
+        self.no_brand_name_avaiable = (By.XPATH, "//h4[normalize-space()='No brand name available.']")
         self.view_all_brands = (By.XPATH, "//a[contains(text(),'View all')]")
         self.brands_names = (By.XPATH, "//div[@class='row']/div/a")
         self.next_button_locator = (By.XPATH, "//a[@rel='next']")
@@ -23,16 +24,29 @@ class CompanyBrandsPage(BasePage):
         return self.get_current_url()
 
     def check_all_brands_available(self):
-        element = self.wait_for_element_visibility(self.available_brand_name_title, 5)
-        all_brand_status = element.is_displayed()
-        if not all_brand_status:
-            self.click_on_element(self.view_all_brands)
+        try:
             element = self.wait_for_element_visibility(self.available_brand_name_title, 5)
             all_brand_status = element.is_displayed()
-            if not all_brand_status:
-                ic("check_all_brands_available Status", all_brand_status)
-            else:
-                return True
+
+            try:
+                no_brand = self.wait_for_element_visibility(self.no_brand_name_avaiable, 5)
+                no_brand_status = no_brand.is_displayed()
+                if no_brand_status:
+                    ic("Brand name not available")
+                    all_brand_status = False
+            except NoSuchElementException:
+                pass
+        except NoSuchElementException:
+            all_brand_status = False
+        if not all_brand_status:
+            try:
+                self.wait_for_element_visibility(self.view_all_brands)
+                self.click_on_element(self.view_all_brands)
+                element = self.wait_for_element_visibility(self.available_brand_name_title, 5)
+                all_brand_status = element.is_displayed()
+                return all_brand_status
+            except NoSuchElementException:
+                pass
         else:
             return True
 
@@ -42,6 +56,7 @@ class CompanyBrandsPage(BasePage):
             link = brand.get_attribute("href")
             if link not in self.brand_links:
                 self.brand_links.append(link)
+                # ic(link)
 
     def handle_pagination(self):
         while self.check_all_brands_available():
@@ -57,6 +72,7 @@ class CompanyBrandsPage(BasePage):
             while True:
                 try:
                     # Check if the "Next" button is displayed
+                    next_button = self.get_element(self.next_button_locator)
                     if next_button.is_displayed():
                         active_page_number = int(self.get_element_text(self.active_page_locator))
                         # next_button = self.get_element(self.next_button_locator)
@@ -66,8 +82,7 @@ class CompanyBrandsPage(BasePage):
 
                         for page in range(active_page_number, last_page_number + 1):
                             self.collect_brand_links()
-                            ic(page, "Stored")
-                            ic(len(self.brand_links))
+                            # ic(len(self.brand_links))
                             if page < last_page_number:
                                 try:
                                     next_button = self.wait_for_element_clickable(next_button)
@@ -76,7 +91,6 @@ class CompanyBrandsPage(BasePage):
                                     next_button = self.get_element(self.next_button_locator)
                                     last_page = self.get_element(self.last_page_locator, parent_element=next_button)
                                     last_page_number = int(last_page.text)
-                                    ic(active_page_number, last_page_number)
                                 except NoSuchElementException:
                                     pass
                             else:

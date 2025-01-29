@@ -14,26 +14,31 @@ def step_impl(context):
 
 @when(u'I click on each company name')
 def step_impl(context):
-    # context.company_page.handle_pagination()
-    # ic(len(context.company_page.company_links))
+    context.company_page.handle_pagination()
+    ic(len(context.company_page.company_links))
     # ic(context.company_page.company_links)
-    pass
-
 
 @when(u'I view all brands if available')
 def step_impl(context):
-    # for company_link in context.company_page.company_links:
-    #     context.driver.get(company_link)
-    #     context.company_brands_page = CompanyBrandsPage(context.driver)
-    #     assert context.company_brands_page.retrieve_current_url().__eq__(company_link)
-
-
     context.company_brands_page = CompanyBrandsPage(context.driver)
-    context.driver.get("https://medex.com.bd/companies/304/alien-pharma/brands")
-    # context.driver.get("https://medex.com.bd/companies/6/amico-laboratories-ltd/brands")
+    for company_link in context.company_page.company_links:
+        context.driver.get(company_link)
+        assert context.company_brands_page.retrieve_current_url().__eq__(company_link)
+        ic("--------------", company_link, "--------------")
+        context.company_brands_page.handle_pagination()
+        ic(len(context.company_brands_page.brand_links))
+        # ic(context.company_brands_page.brand_links)
 
-    context.company_brands_page.handle_pagination()
-    ic(context.company_brands_page.brand_links)
+
+    # context.company_brands_page = CompanyBrandsPage(context.driver)
+    # context.driver.get("https://medex.com.bd/companies/127/everest-pharmaceuticals-ltd")
+    # # context.driver.get("https://medex.com.bd/companies/304/alien-pharma/brands")
+    # # context.driver.get("https://medex.com.bd/companies/2/aci-limited")
+    # # context.driver.get("https://medex.com.bd/companies/466/shinil-pharma-limited/brands")
+    # context.company_brands_page.handle_pagination()
+    # ic(len(context.company_brands_page.brand_links))
+    # ic(context.company_brands_page.brand_links)
+
 
 @when(u'I click on each brand')
 def step_impl(context):
